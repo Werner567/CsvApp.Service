@@ -14,18 +14,15 @@ namespace CsvApp.Service.Services.CsvDataLoaderWorker
         private List<Vehicle> _vehicles;
         //private readonly IServiceScopeFactory _scopeFactory;
 
-        public CsvDataLoaderWorker(IServiceProvider serviceProvider, IOptions<ServiceOptions> serviceOptions/*, ICsvLoaderService csvLoaderoptions,*/ ,ILogger<CsvDataLoaderWorker> logger)
+        public CsvDataLoaderWorker(IServiceProvider serviceProvider, IOptions<ServiceOptions> serviceOptions,ILogger<CsvDataLoaderWorker> logger)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-           // _csvLoaderoptions = csvLoaderoptions ?? throw new ArgumentNullException(nameof(csvLoaderoptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceOptions = serviceOptions.Value ?? throw new ArgumentNullException(nameof(serviceOptions));
             _vehicles = new List<Vehicle>();
-           // _scopeFactory = scopeFactory;
         }
         public List<Vehicle> GetLoadedData()
         {
-
             return _vehicles;
         }
 
@@ -44,8 +41,6 @@ namespace CsvApp.Service.Services.CsvDataLoaderWorker
                         // Use csvLoaderService...
                         await csvLoaderService.LoadCsv(filePath, stoppingToken); // Replace with your actual method call
                     }
-
-                   // await _csvLoaderoptions.LoadCsv(filePath, stoppingToken);
                     // Sleep or delay before the next iteration
                     await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
                 }

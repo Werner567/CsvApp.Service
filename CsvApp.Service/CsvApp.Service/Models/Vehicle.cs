@@ -1,8 +1,11 @@
-﻿namespace CsvApp.Service.Models
+﻿using CsvApp.Service.Options;
+using Microsoft.Extensions.Options;
+
+namespace CsvApp.Service.Models
 {
     public class Vehicle
     {
-
+       
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Type { get; set; }
         public string Make { get; set; }
@@ -12,40 +15,51 @@
         public string FuelType { get; set; }
         public bool Active { get; set; }
 
-        // Add methods for calculated fields (Annual Taxable Levy, Roadworthy Test Interval)
-       /* public decimal CalculateAnnualTaxableLevy()
+        public decimal AnnualTaxableLevy { get; set; }
+        public string RoadworthyTestInterval { get; set; }
+
+        
+        public void CalculateAnnualTaxableLevy(IOptions<VehicleOptions> options)
         {
-            switch (Type)
+            switch (Type.ToLower())
             {
-                case "Car":
-                    return FuelType == "Petrol" ? 1.2m * 1500 : 1500;
-                case "Bicycle":
-                    return 0; // non-applicable
-                case "Bike":
-                    return 1000;
-                case "Plane":
-                    return 5000;
-                case "Boat":
-                    return FuelType == "Petrol" ? 1.15m * 2000 : 2000;
+                case "car":
+                    AnnualTaxableLevy = FuelType.ToLower() == "petrol" ? options.Value.CarLevy * (1 + options.Value.PetrolLevyPercentage) : options.Value.CarLevy;
+                    break;
+                case "bicycle":
+                    AnnualTaxableLevy = options.Value.BicycleLevy; // No tax for bicycles
+                    break;
+                case "bike":
+                    AnnualTaxableLevy = options.Value.BikeLevy;
+                    break;
+                case "plane":
+                    AnnualTaxableLevy = options.Value.PlaneLevy;
+                    break;
+                case "boat":
+                    AnnualTaxableLevy = FuelType.ToLower() == "petrol" ? options.Value.BoatLevy * (1+ options.Value.BoatLevyPercentage) : 2000;
+                    break;
                 default:
-                    return 0; // Handle other types as needed
+                    // Handle other vehicle types or throw an exception based on your business logic.
+                    AnnualTaxableLevy = 0;
+                    break;
             }
         }
 
-        public string GetRoadworthyTestInterval()
+
+        public void GetRoadworthyTestInterval()
         {
             if (Type == "Car")
             {
-                return Year < DateTime.Now.Year - 10 ? "Every year" : "Every 2 years";
-            }
+                RoadworthyTestInterval =  Year < DateTime.Now.Year - 10 ? "Every year" : "Every 2 years";
+             }
             else if (Type == "Bike")
             {
-                return Year < DateTime.Now.Year - 5 ? "Every 6 months" : "Every year";
+                RoadworthyTestInterval = Year < DateTime.Now.Year - 5 ? "Every 6 months" : "Every year";
             }
             else
             {
-                return "No roadworthy test applies";
+                RoadworthyTestInterval = "No roadworthy test applies";
             }
-        }*/
+        }
     }
 }

@@ -1,4 +1,9 @@
+using CsvApp.Service.Options;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace CsvApp.Service
 {
@@ -7,6 +12,7 @@ namespace CsvApp.Service
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
+
             host.Run();
         }
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -25,9 +31,21 @@ namespace CsvApp.Service
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
+                int servicePort = 5000;
+                webBuilder.ConfigureKestrel(options =>
+                {
+                    var configuration = options.ApplicationServices.GetRequiredService<IConfiguration>();
+                    var serviceConfig = configuration.GetSection("ServiceOptions").Get<ServiceOptions>();
+                    servicePort = serviceConfig.ServicePort;
+
+                });
+                webBuilder.UseUrls($"https://localhost:{servicePort}");
+
             }).ConfigureLogging((hostingContext, logging) =>
             {
                 logging.AddConsole().SetMinimumLevel(LogLevel.Debug);
             });
+
+
     }
 }

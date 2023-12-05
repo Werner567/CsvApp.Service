@@ -23,9 +23,14 @@ namespace CsvApp.Service
         }
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddMvc();
             services.Configure<ServiceOptions>(_configuration.GetSection(nameof(ServiceOptions)));
             services.Configure<SqliteOptions>(_configuration.GetSection(nameof(SqliteOptions)));
+            services.Configure<VehicleOptions>(_configuration.GetSection(nameof(VehicleOptions)));
+            
+            
+
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -47,6 +52,8 @@ namespace CsvApp.Service
 
 
         }
+
+       
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

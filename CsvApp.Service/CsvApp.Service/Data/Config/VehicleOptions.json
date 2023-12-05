@@ -1,0 +1,11 @@
+{
+  "VehicleOptions": {
+    "PetrolLevyPercentage": 0.2,
+    "CarLevy": 1500,
+    "BicycleLevy": 0,
+    "BikeLevy": 1000,
+    "PlaneLevy": 5000,
+    "BoatLevy": 2000,
+    "BoatLevyPercentage": 0.2
+  }
+}

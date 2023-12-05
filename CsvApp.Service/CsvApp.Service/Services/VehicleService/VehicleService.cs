@@ -60,9 +60,7 @@ namespace CsvApp.Service.Services.VehicleService
 
         public async Task<List<Vehicle>> QueryVehicles(string make, string type, CancellationToken cancellationToken)
         {
-            return _vehicles.Where(v => (string.IsNullOrEmpty(make) || v.Make.Equals(make, StringComparison.OrdinalIgnoreCase))
-                                      && (string.IsNullOrEmpty(type) || v.Type.Equals(type, StringComparison.OrdinalIgnoreCase)))
-                            .ToList();
+            return await _dbRepo.ReadFilterAsync(make,type, cancellationToken);
         }
     }
 }

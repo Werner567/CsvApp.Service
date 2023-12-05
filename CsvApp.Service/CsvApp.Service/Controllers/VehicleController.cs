@@ -118,9 +118,9 @@ namespace CsvApp.Service.Controllers
         [HttpGet("query")]
         public async Task<ActionResult<IEnumerable<Vehicle>>> Query([FromQuery] string make, [FromQuery] string type, CancellationToken cancellationToken = default)
         {
-            var result = _vehicleService.QueryVehicles(make, type, cancellationToken);
+            var result =  await _vehicleService.QueryVehicles(make, type, cancellationToken);
 
-            if (result.Result.Count == 0)
+            if (result.Count == 0)
             {
                 return NotFound();
             }

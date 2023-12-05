@@ -2,29 +2,27 @@
 using CsvApp.Service.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System.Linq;
 
 namespace CsvApp.Service.Repos
 {
     public class DbRepo : IDbRepo
     {
         private readonly SqliteOptions _options;
+        private readonly IOptions< VehicleOptions> _vehicleOptions;
         private readonly AppDbContext _appDbContext;
         private readonly ILogger<DbRepo> _logger;
 
-        public DbRepo(IOptions<SqliteOptions> options, AppDbContext appDbContext, ILogger<DbRepo> logger)
+        public DbRepo(IOptions<SqliteOptions> options, IOptions<VehicleOptions> VehicleOptions, AppDbContext appDbContext, ILogger<DbRepo> logger)
         {
             _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+            _vehicleOptions = VehicleOptions ?? throw new ArgumentNullException(nameof(VehicleOptions));
             _appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         public async Task<List<Vehicle>> ReadFilterManyAsync(List<Vehicle> dataModel, CancellationToken cancellationToken)
         {
             var allVehicles = await _appDbContext.Vehicles.ToListAsync(cancellationToken);
-            // Extract Make and Model from the provided list of vehicles
-            // var makeModelPairs = dataModel.Select(vehicle => new { vehicle.Make, vehicle.Model }).ToList();
-
-            // Query the database for existing vehicles with matching Make and Model
+           
             if (allVehicles.Count() == 0)
             {
                 return null;
@@ -38,9 +36,22 @@ namespace CsvApp.Service.Repos
             pair.WheelCount == vehicle.WheelCount &&
             pair.FuelType == vehicle.FuelType &&
             pair.Active == vehicle.Active))
-        .ToList();
+            .ToList();
 
             return existingVehicles;
+        }
+
+        public async Task<List<Vehicle>> ReadFilterAsync(string make, string type, CancellationToken cancellationToken)
+        {
+            var allVehicles = await _appDbContext.Vehicles.Where(x=>x.Make.ToLower() == make.ToLower()
+            && x.Type.ToLower() == type.ToLower()).ToListAsync(cancellationToken);
+
+            if (allVehicles.Count() == 0)
+            {
+                return null;
+            }
+
+            return allVehicles;
         }
 
         public async Task<List<Vehicle>> ReadManyAsync(CancellationToken cancellationToken)
@@ -57,16 +68,12 @@ namespace CsvApp.Service.Repos
         }
 
 
-
-        public async Task AddAsync(Vehicle dataModel, CancellationToken cancellationToken)
-        {
-            _appDbContext.Vehicles.Add(dataModel);
-        }
-
         public async Task AddManyAsync(List<Vehicle> dataModel, CancellationToken cancellationToken)
         {
             foreach (var dataModelItem in dataModel)
             {
+                dataModelItem.CalculateAnnualTaxableLevy(_vehicleOptions);
+                dataModelItem.GetRoadworthyTestInterval();
                 _appDbContext.Vehicles.Add(dataModelItem);
             }
             _appDbContext.SaveChanges();
@@ -117,6 +124,8 @@ namespace CsvApp.Service.Repos
                 existingVehicle.WheelCount = dataModel.WheelCount;
                 existingVehicle.FuelType = dataModel.FuelType;
                 existingVehicle.Active = dataModel.Active;
+                existingVehicle.AnnualTaxableLevy = dataModel.AnnualTaxableLevy;
+                existingVehicle.RoadworthyTestInterval = dataModel.RoadworthyTestInterval;
 
                 // Save the changes to the database
                 await _appDbContext.SaveChangesAsync(cancellationToken);
@@ -133,6 +142,8 @@ namespace CsvApp.Service.Repos
         {
             try
             {
+                dataModel.CalculateAnnualTaxableLevy(_vehicleOptions);
+                dataModel.GetRoadworthyTestInterval();
                 _appDbContext.Vehicles.Add(dataModel);
                 _appDbContext.SaveChanges();
             }

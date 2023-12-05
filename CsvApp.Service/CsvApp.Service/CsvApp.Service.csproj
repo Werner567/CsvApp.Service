@@ -28,9 +28,15 @@
     <Content Update="Data\Config\SqliteOptions.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="Data\Config\VehicleOptions.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="app.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Data\CSV\cars.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
