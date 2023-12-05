@@ -1,0 +1,8 @@
+TYPE,MAKE,MODEL,YEAR,WHEELCOUNT,FUELTYPE,ACTIVE
+Car,Mazda,Midge,1986,4,Petrol,True
+Boat,Yamaha,ski-boat,1992,0,Diesel,True
+Bicycle,Raleigh,Terrain,1945,None,False,
+Car,Polo,Playa,1999,4,Diesel,True
+Bike,Kawasaki,Ninja,2003,2,Petrol,True
+Plane,Cessna,Citation,2001,3,Petrol,True
+Bicycle,Fisher-Price,Trike,2009,3,None,True
