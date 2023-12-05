@@ -1,0 +1,141 @@
+{
+	"info": {
+		"_postman_id": "572c25c9-a02e-4168-b328-f7cd51e64434",
+		"name": "Swagger",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17138257"
+	},
+	"item": [
+		{
+			"name": "GetAll",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7098//api/Vehicle",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7098",
+					"path": [
+						"",
+						"api",
+						"Vehicle"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5000/api/Vehicle/query?make=Mazda&type=car",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"Vehicle",
+						"query"
+					],
+					"query": [
+						{
+							"key": "make",
+							"value": "Mazda"
+						},
+						{
+							"key": "type",
+							"value": "car"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddNew",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"type\": \"string\",\r\n  \"make\": \"string\",\r\n  \"model\": \"string\",\r\n  \"year\": 0,\r\n  \"wheelCount\": 0,\r\n  \"fuelType\": \"string\",\r\n  \"active\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7098/api/Vehicle",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7098",
+					"path": [
+						"api",
+						"Vehicle"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteRecord",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:29692/api/Vehicle/18187614-742c-4e09-a91f-a0199f2f42d0",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "29692",
+					"path": [
+						"api",
+						"Vehicle",
+						"18187614-742c-4e09-a91f-a0199f2f42d0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateRecord",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"id\": \"97a82376-d077-430e-9fcb-18044ebafbcd\",\r\n        \"type\": \"strin1g\",\r\n        \"make\": \"string\",\r\n        \"model\": \"string\",\r\n        \"year\": 0,\r\n        \"wheelCount\": 0,\r\n        \"fuelType\": \"string\",\r\n        \"active\": true\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7098/api/Vehicle",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7098",
+					"path": [
+						"api",
+						"Vehicle"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

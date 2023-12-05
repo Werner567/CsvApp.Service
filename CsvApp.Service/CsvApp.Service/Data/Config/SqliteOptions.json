@@ -1,0 +1,5 @@
+{
+  "SqliteOptions": {
+    "DefaultConnection": "Data Source=app.db"
+  }
+}
