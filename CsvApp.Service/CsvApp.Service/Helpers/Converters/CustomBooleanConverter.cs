@@ -6,11 +6,18 @@ namespace CsvApp.Service.Helpers.Converters
 {
     public class CustomBooleanConverter : DefaultTypeConverter
     {
+        /// <summary>
+        /// Custom Converter for string "bool" to bool
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="row"></param>
+        /// <param name="memberMapData"></param>
+        /// <returns></returns>
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
-                // Handle empty or whitespace strings as false
+                
                 return false;
             }
 
@@ -19,7 +26,7 @@ namespace CsvApp.Service.Helpers.Converters
                 return result;
             }
 
-            // Case-insensitive check for 'True' or 'False'
+            
             if (text.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 return true;

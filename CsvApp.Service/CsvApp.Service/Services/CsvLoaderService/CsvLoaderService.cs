@@ -17,62 +17,79 @@ namespace CsvApp.Service.Services.CsvLoaderService
     {
         private List<Vehicle> _loadedData;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<CsvLoaderService> _logger;
         private readonly IDbRepo _options;
 
         //private readonly AppDbContext _dbContext;
 
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <param name="logger"></param>
+        /// <param name="options"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public CsvLoaderService(IServiceProvider serviceProvider, ILogger<CsvLoaderService> logger, IDbRepo options)
         {
 
             // Initialize other members...
             _loadedData = new List<Vehicle>();
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
 
             //_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
        
+        
 
-        public List<Vehicle> GetLoadedData()
-        {
-            return _loadedData;
-        }
-
-        public async Task AddDataToCSV(Vehicle vehicle)
-        {
-           
-        }
+        /// <summary>
+        /// Reading the CSV file
+        /// </summary>
+        /// <param name="filePath">full path</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task LoadCsv(string filePath, CancellationToken cancellationToken)
         {
             // Check if the file exists
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException($"CSV file not found at: {filePath}");
+                _logger.LogInformation("No CSV file found, skipping data import");
             }
 
-            using (var reader = new StreamReader(filePath))
-            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) { MissingFieldFound = null }))
+            if (File.Exists(filePath))
             {
-                csv.Context.RegisterClassMap<VehicleCsvMap>();
-                csv.Read();
-                // Read the header row manually
-                csv.ReadHeader();
+                _logger.LogInformation($"attempting to read {filePath}, importing new data not in DB");
 
-                // Get records without using HasHeaderRecord configuration
-                _loadedData =  csv.GetRecords<Vehicle>().ToList();
+                using (var reader = new StreamReader(filePath))
+                using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) { MissingFieldFound = null }))
+                {
+                    _logger.LogTrace($"Attempting Registing Classmap");
+                    csv.Context.RegisterClassMap<VehicleCsvMap>();
+                    csv.Read();
+                    _logger.LogTrace($"Reading file");
+                    csv.ReadHeader();
 
-               
-                var dataInDb = await _options.ReadFilterManyAsync(_loadedData, cancellationToken);
-                var dataToAdd = CompareLists(_loadedData,dataInDb);
-                // Save new records found to the database
-                await _options.AddManyAsync(dataToAdd, cancellationToken);
+                    // Get records without using HasHeaderRecord configuration
+                    _loadedData = csv.GetRecords<Vehicle>().ToList();
 
+
+                    var dataInDb = await _options.ReadFilterManyAsync(_loadedData, cancellationToken);
+                    var dataToAdd = CompareLists(_loadedData, dataInDb);
+                    // Save new records found to the database
+                    _logger.LogInformation($"adding {dataToAdd.Count} new recods to the DB");
+                    await _options.AddManyAsync(dataToAdd, cancellationToken);
+
+                }
             }
         }
 
-        public List<Vehicle> CompareLists(List<Vehicle> list1, List<Vehicle> list2)
+
+
+
+
+        private List<Vehicle> CompareLists(List<Vehicle> list1, List<Vehicle> list2)
         {
             if (list2 == null)
             {
