@@ -7,18 +7,32 @@ namespace CsvApp.Service.Repos
 {
     public class DbRepo : IDbRepo
     {
-        private readonly SqliteOptions _options;
         private readonly IOptions< VehicleOptions> _vehicleOptions;
         private readonly AppDbContext _appDbContext;
         private readonly ILogger<DbRepo> _logger;
 
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="VehicleOptions"></param>
+        /// <param name="appDbContext"></param>
+        /// <param name="logger"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbRepo(IOptions<SqliteOptions> options, IOptions<VehicleOptions> VehicleOptions, AppDbContext appDbContext, ILogger<DbRepo> logger)
         {
-            _options = options.Value ?? throw new ArgumentNullException(nameof(options));
             _vehicleOptions = VehicleOptions ?? throw new ArgumentNullException(nameof(VehicleOptions));
             _appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        /// <summary>
+        /// Queries the DB for new changes from CSV
+        /// </summary>
+        /// <param name="dataModel"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<List<Vehicle>> ReadFilterManyAsync(List<Vehicle> dataModel, CancellationToken cancellationToken)
         {
             var allVehicles = await _appDbContext.Vehicles.ToListAsync(cancellationToken);
@@ -41,6 +55,13 @@ namespace CsvApp.Service.Repos
             return existingVehicles;
         }
 
+        /// <summary>
+        /// Queries DB with a filter by make and type
+        /// </summary>
+        /// <param name="make"></param>
+        /// <param name="type"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<List<Vehicle>> ReadFilterAsync(string make, string type, CancellationToken cancellationToken)
         {
             var allVehicles = await _appDbContext.Vehicles.Where(x=>x.Make.ToLower() == make.ToLower()
@@ -54,20 +75,35 @@ namespace CsvApp.Service.Repos
             return allVehicles;
         }
 
+
+        /// <summary>
+        /// Reads all vehicles in DB
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<List<Vehicle>> ReadManyAsync(CancellationToken cancellationToken)
         {
-
             return await _appDbContext.Vehicles.ToListAsync(cancellationToken);
-
         }
 
+        /// <summary>
+        /// Read one vehicle by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<Vehicle> ReadOneAsync(Guid id, CancellationToken cancellationToken)
         {
             var data = await _appDbContext.Vehicles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             return data;
         }
 
-
+        /// <summary>
+        /// Add many vehicles into DB
+        /// </summary>
+        /// <param name="dataModel"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task AddManyAsync(List<Vehicle> dataModel, CancellationToken cancellationToken)
         {
             foreach (var dataModelItem in dataModel)
@@ -79,6 +115,12 @@ namespace CsvApp.Service.Repos
             _appDbContext.SaveChanges();
         }
 
+        /// <summary>
+        /// Deletes a vehicle by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<bool> DeleteOneAsync(Guid id, CancellationToken cancellationToken)
         {
             try
@@ -87,32 +129,37 @@ namespace CsvApp.Service.Repos
 
                 if (vehicleToDelete == null)
                 {
-                    // The vehicle with the specified id was not found
+                    _logger.LogInformation($"Specified vechicle not found with ID: {id}");
                     return false;
                 }
 
                 _appDbContext.Vehicles.Remove(vehicleToDelete);
                 await _appDbContext.SaveChangesAsync(cancellationToken);
-
-                return true; // Vehicle deleted successfully
+                _logger.LogInformation($"Specified vechicle deleted from DB with ID: {id}");
+                return true; 
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it appropriately
-                return false; // Return false to indicate failure
+                _logger.LogError(ex.Message);
+                return false; 
             }
         }
 
+        /// <summary>
+        /// Updates one vechicle information 
+        /// </summary>
+        /// <param name="dataModel"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<bool> UpdateOneAsync(Vehicle dataModel, CancellationToken cancellationToken)
         {
             try
             {
-                // Find the existing vehicle in the database by Id
                 var existingVehicle = await _appDbContext.Vehicles.FindAsync(dataModel.Id);
 
                 if (existingVehicle == null)
                 {
-                    // The vehicle with the specified Id was not found
+                    _logger.LogInformation($"Specified vechicle not found with ID: {dataModel.Id}");
                     return false;
                 }
 
@@ -126,18 +173,23 @@ namespace CsvApp.Service.Repos
                 existingVehicle.Active = dataModel.Active;
                 existingVehicle.AnnualTaxableLevy = dataModel.AnnualTaxableLevy;
                 existingVehicle.RoadworthyTestInterval = dataModel.RoadworthyTestInterval;
-
-                // Save the changes to the database
                 await _appDbContext.SaveChangesAsync(cancellationToken);
-
-                return true; // Vehicle updated successfully
+                _logger.LogInformation($"Specified vechicle updated, ID: {dataModel.Id}");
+                return true; 
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it appropriately
-                return false; // Return false to indicate failure
+                _logger.LogError(ex.Message);
+                return false; 
             }
         }
+
+        /// <summary>
+        /// Adds one vehicle to DB
+        /// </summary>
+        /// <param name="dataModel"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<bool> AddOneAsync(Vehicle dataModel, CancellationToken cancellationToken)
         {
             try

@@ -6,7 +6,7 @@ namespace CsvApp.Service.Models
     public class Vehicle
     {
        
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid(); //Creates new ID for DB write
         public string Type { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
@@ -27,7 +27,7 @@ namespace CsvApp.Service.Models
                     AnnualTaxableLevy = FuelType.ToLower() == "petrol" ? options.Value.CarLevy * (1 + options.Value.PetrolLevyPercentage) : options.Value.CarLevy;
                     break;
                 case "bicycle":
-                    AnnualTaxableLevy = options.Value.BicycleLevy; // No tax for bicycles
+                    AnnualTaxableLevy = options.Value.BicycleLevy; 
                     break;
                 case "bike":
                     AnnualTaxableLevy = options.Value.BikeLevy;
@@ -39,7 +39,6 @@ namespace CsvApp.Service.Models
                     AnnualTaxableLevy = FuelType.ToLower() == "petrol" ? options.Value.BoatLevy * (1+ options.Value.BoatLevyPercentage) : 2000;
                     break;
                 default:
-                    // Handle other vehicle types or throw an exception based on your business logic.
                     AnnualTaxableLevy = 0;
                     break;
             }

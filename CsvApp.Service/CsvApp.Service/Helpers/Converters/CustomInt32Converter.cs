@@ -15,7 +15,7 @@ namespace CsvApp.Service.Helpers.Converters
 
             if (text.Equals("None", StringComparison.OrdinalIgnoreCase))
             {
-                return 0; // or any other default value for 'None'
+                return 0;
             }
 
             return base.ConvertFromString(text, row, memberMapData);
